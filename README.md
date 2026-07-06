@@ -57,20 +57,47 @@ all a live deployment needs.
 # Deterministic demo snapshot (a Gulf Coast + Midwest storm scenario)
 python3 scripts/fetch_outages.py
 
+# Live data from ODIN (DOE/ORNL) — free, no API key
+python3 scripts/fetch_outages.py --source odin
+
 # Pull from any endpoint that already returns the schema above
 python3 scripts/fetch_outages.py --source url --url https://example.com/outages.json
 ```
 
-### Hooking up a real feed
+### ODIN (the free live source)
 
-There is no free, official nationwide live outage API, but two established
-sources map directly onto this schema:
+The [Outage Data Initiative Nationwide](https://odin.ornl.gov) is a
+DOE/ORNL program in which utilities report standardized outage data in
+near-real time. ORNL republishes it as a public county-level dataset on
+their [OpenEnergyHub portal](https://openenergyhub.ornl.gov/explore/dataset/odin-real-time-outages-county/),
+which the `odin` source reads via the portal's Opendatasoft exports API
+(no key required) and aggregates to state level.
+
+Two caveats, both visible in the UI:
+
+- **Coverage is participating utilities only.** States with no reporting
+  utility are omitted from the output and render as **"No data"** (an
+  unfilled outline) rather than zero.
+- When a utility doesn't report how many customers it serves, the state's
+  denominator falls back to a population-based estimate, flagged as
+  `"tracked_estimated": true` and shown with a `~` prefix in the app.
+
+Portals occasionally rename columns; if the adapter can't map a record it
+prints the actual field names so you can extend `ODIN_FIELDS` in
+`scripts/fetch_outages.py`. Use `--odin-base` / `--odin-dataset` if the
+dataset moves.
+
+### Other real feeds
 
 - **[PowerOutage.us](https://poweroutage.us/products)** (commercial API) —
   aggregates ~3,000 utilities into state and county rollups, refreshed
-  about every 10 minutes.
-- **[DOE/ORNL EAGLE-I](https://eagle-i.doe.gov)** — the federal outage
-  aggregation program; historical snapshots are publicly released.
+  about every 10 minutes; the most complete coverage available.
+- **State feeds** — e.g. [Cal OES county outages](https://gis.data.ca.gov/datasets/439afad071eb4754903906aff1946719_2/api)
+  (ArcGIS, 15-minute refresh) and [MEMA's Massachusetts town-level map](https://www.mass.gov/info-details/power-outages).
+- **Per-utility endpoints** — most large utilities' outage maps are backed
+  by vendor JSON endpoints (e.g. Kubra StormCenter, scrapeable via the
+  [`kubra`](https://pypi.org/project/kubra/) package). Undocumented;
+  check terms of service.
 
 To integrate one, add a `build_<provider>` function to
 `scripts/fetch_outages.py` that maps the provider's response into the

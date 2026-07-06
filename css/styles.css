@@ -154,6 +154,7 @@ body {
   stroke-width: 0.75;
   cursor: default;
 }
+.state--nodata { stroke: var(--hairline); } /* keeps the US silhouette visible */
 .state:hover, .state:focus-visible {
   stroke: var(--text-primary);
   stroke-width: 1.5;

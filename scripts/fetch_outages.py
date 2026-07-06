@@ -3,6 +3,11 @@
 
 Sources:
   sample (default)  Deterministic, realistic demo snapshot (no network needed).
+  odin              DOE/ORNL Outage Data Initiative Nationwide — free public
+                    county-level feed (https://odin.ornl.gov), aggregated here
+                    to state level. Covers participating utilities only;
+                    states with no reporting utility are omitted and render
+                    as "No data" on the map.
   url               Fetch a JSON document that already matches the outages
                     schema from --url (e.g. an internal aggregator endpoint).
 
@@ -75,6 +80,30 @@ STATES = [
 
 CUSTOMERS_PER_CAPITA = 0.48
 
+# ---- ODIN (DOE/ORNL Outage Data Initiative Nationwide) ----
+# ORNL republishes ODIN on an Opendatasoft portal; the exports endpoint
+# streams every record without pagination and needs no API key.
+ODIN_BASE = "https://ornl.opendatasoft.com"
+ODIN_DATASET = "odin-real-time-outages-county"
+
+# Portals rename columns occasionally, so map by candidate lists (matched
+# case-insensitively, in order). If nothing matches, the adapter prints the
+# record's actual field names so the right candidate can be added here.
+ODIN_FIELDS = {
+    "fips": ["county_fips", "fips", "fips_code", "fipscode", "geoid",
+             "county_fips_code", "cnty_fips"],
+    "out": ["customers_out", "customersout", "cust_out", "customers_affected",
+            "customersaffected", "outage_count", "num_out", "sum_customers_out",
+            "customersoutnow", "out"],
+    "served": ["customers_served", "customersserved", "cust_served",
+               "customers_tracked", "total_customers", "customer_count",
+               "served"],
+    "state": ["state", "state_abbr", "state_code", "st", "state_name"],
+    "updated": ["last_updated", "lastupdatedt", "updated_at", "utc_timestamp",
+                "timestamp", "datetime", "last_update", "observed_at",
+                "record_time"],
+}
+
 # Demo scenario: a Gulf Coast hurricane remnant plus a Midwest derecho.
 # Values are the fraction of tracked customers without power.
 SAMPLE_EVENT_RATES = {
@@ -101,6 +130,97 @@ def build_sample():
     return states
 
 
+def _pick_field(record_lc, candidates):
+    for name in candidates:
+        if name in record_lc and record_lc[name] is not None:
+            return record_lc[name]
+    return None
+
+
+def _to_int(value):
+    try:
+        return max(0, int(float(value)))
+    except (TypeError, ValueError):
+        return None
+
+
+def build_from_odin(base, dataset):
+    url = f"{base.rstrip('/')}/api/explore/v2.1/catalog/datasets/{dataset}/exports/json"
+    req = urllib.request.Request(url, headers={"Accept": "application/json"})
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        records = json.load(resp)
+    if isinstance(records, dict):  # some portals wrap the array
+        records = records.get("results") or records.get("records") or []
+    if not records:
+        raise RuntimeError(f"ODIN export returned no records ({url})")
+
+    by_fips = {fips: (abbr, name) for fips, abbr, name, _ in STATES}
+    by_abbr = {abbr: fips for fips, abbr, _, _ in STATES}
+    by_name = {name.lower(): fips for fips, _, name, _ in STATES}
+    estimates = {fips: int(pop_m * 1_000_000 * CUSTOMERS_PER_CAPITA)
+                 for fips, _, _, pop_m in STATES}
+
+    out_sum = {}
+    served_sum = {}
+    served_complete = {}
+    skipped = 0
+    for rec in records:
+        rec_lc = {k.lower(): v for k, v in rec.items()}
+        state_fips = None
+        county_fips = _pick_field(rec_lc, ODIN_FIELDS["fips"])
+        if county_fips is not None:
+            digits = str(county_fips).split(".")[0].zfill(5)
+            if digits[:2] in by_fips:
+                state_fips = digits[:2]
+        if state_fips is None:
+            state_val = _pick_field(rec_lc, ODIN_FIELDS["state"])
+            if state_val is not None:
+                s = str(state_val).strip()
+                state_fips = (by_abbr.get(s.upper())
+                              or by_name.get(s.lower())
+                              or (s.zfill(2) if s.zfill(2) in by_fips else None))
+        out = _to_int(_pick_field(rec_lc, ODIN_FIELDS["out"]))
+        if state_fips is None or out is None:
+            skipped += 1
+            if skipped == 1:
+                print("odin: could not map a record; its fields are: "
+                      + ", ".join(sorted(rec.keys()))
+                      + " — extend ODIN_FIELDS if these look right",
+                      file=sys.stderr)
+            continue
+        out_sum[state_fips] = out_sum.get(state_fips, 0) + out
+        served = _to_int(_pick_field(rec_lc, ODIN_FIELDS["served"]))
+        if served is None:
+            served_complete[state_fips] = False
+        else:
+            served_complete.setdefault(state_fips, True)
+            served_sum[state_fips] = served_sum.get(state_fips, 0) + served
+
+    if not out_sum:
+        raise RuntimeError(
+            f"odin: no records could be mapped (of {len(records)}); "
+            "see the field-name hint above and extend ODIN_FIELDS")
+    if skipped:
+        print(f"odin: skipped {skipped} of {len(records)} unmappable records",
+              file=sys.stderr)
+
+    states = []
+    for state_fips, out in sorted(out_sum.items()):
+        abbr, name = by_fips[state_fips]
+        # Prefer the utilities' own served-customer counts; fall back to the
+        # population-based estimate when any county lacked one.
+        if served_complete.get(state_fips) and served_sum.get(state_fips, 0) >= out:
+            tracked, tracked_estimated = served_sum[state_fips], False
+        else:
+            tracked, tracked_estimated = max(estimates[state_fips], out), True
+        states.append({
+            "fips": state_fips, "abbr": abbr, "name": name,
+            "customers_out": out, "customers_tracked": tracked,
+            "tracked_estimated": tracked_estimated,
+        })
+    return states
+
+
 def build_from_url(url):
     with urllib.request.urlopen(url, timeout=30) as resp:
         doc = json.load(resp)
@@ -115,8 +235,12 @@ def build_from_url(url):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--source", choices=["sample", "url"], default="sample")
+    parser.add_argument("--source", choices=["sample", "odin", "url"], default="sample")
     parser.add_argument("--url", help="endpoint returning the outages schema (required with --source url)")
+    parser.add_argument("--odin-base", default=ODIN_BASE,
+                        help=f"Opendatasoft portal hosting the ODIN dataset (default {ODIN_BASE})")
+    parser.add_argument("--odin-dataset", default=ODIN_DATASET,
+                        help=f"ODIN dataset id on the portal (default {ODIN_DATASET})")
     parser.add_argument("--out", default=str(OUT_PATH), help=f"output path (default {OUT_PATH})")
     args = parser.parse_args()
 
@@ -124,12 +248,17 @@ def main():
         if not args.url:
             parser.error("--source url requires --url")
         states = build_from_url(args.url)
+        source_label = args.url
+    elif args.source == "odin":
+        states = build_from_odin(args.odin_base, args.odin_dataset)
+        source_label = "ODIN (DOE/ORNL), participating utilities only"
     else:
         states = build_sample()
+        source_label = "sample"
 
     doc = {
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "source": args.source if args.source != "url" else args.url,
+        "source": source_label,
         "states": sorted(states, key=lambda s: s["fips"]),
     }
     out_path = Path(args.out)
