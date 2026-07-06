@@ -314,8 +314,6 @@
       ? new Date(state.generatedAt).toLocaleString(undefined,
           { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
       : "–";
-    document.getElementById("source-note").textContent =
-      state.source ? "Source: " + state.source + "." : "";
   }
 
   // ---- table ----
@@ -435,6 +433,29 @@
       return r.json();
     });
   }
+
+  // ---- responsive embed ----
+  // When framed, report our content height to the parent so the host page can
+  // size the iframe to fit — no inner scrollbar, and it adapts as the layout
+  // reflows on mobile. The parent opts in by listening for this message.
+  (function reportHeight() {
+    if (window.parent === window) return; // not embedded
+    var last = 0;
+    function post() {
+      var h = Math.ceil(document.documentElement.getBoundingClientRect().height);
+      if (h && h !== last) {
+        last = h;
+        window.parent.postMessage({ type: "outage-map:height", height: h }, "*");
+      }
+    }
+    if (window.ResizeObserver) {
+      new ResizeObserver(post).observe(document.documentElement);
+    } else {
+      window.addEventListener("resize", post);
+    }
+    window.addEventListener("load", post);
+    post();
+  })();
 
   fetchJson(TOPO_URL)
     .then(function (topo) {
