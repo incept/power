@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light dark">
+  <meta name="color-scheme" content="light">
   <title>US Power Outage Map</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='13' font-size='13'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/styles.css">
@@ -12,8 +12,7 @@
   <div class="viz-root">
     <header class="page-header">
       <h1>US Power Outage Map</h1>
-      <p class="subtitle">Customers without electric power, by state.
-        <span id="source-note"></span></p>
+      <p class="subtitle">Customers without electric power, by state.</p>
     </header>
 
     <section class="stat-row" aria-label="Summary">
@@ -65,12 +64,6 @@
         </table>
       </div>
     </section>
-
-    <footer class="page-footer">
-      <p id="footer-note">Data refreshes automatically every 5 minutes from
-        <code>data/outages.json</code>. Regenerate it with
-        <code>scripts/fetch_outages.py</code>.</p>
-    </footer>
   </div>
 
   <script src="js/vendor/d3.v7.min.js"></script>

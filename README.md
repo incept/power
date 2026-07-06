@@ -54,19 +54,35 @@ https://<owner>.github.io/power/
 (Note this is the `github.io` Pages domain — `github.com/<owner>/power`
 is the code repository and only shows source files.)
 
-To embed in WordPress (or any CMS), add a Custom HTML block:
+To embed in WordPress (or any CMS), add a Custom HTML block. The map
+reports its content height to the parent, so the iframe resizes itself to
+fit — no inner scrollbar, and it adapts as the layout reflows on mobile:
 
 ```html
-<iframe
+<iframe id="outage-map"
   src="https://<owner>.github.io/power/"
   title="US Power Outage Map"
   loading="lazy"
   style="width:100%; height:1500px; border:0; overflow:hidden;">
 </iframe>
+<script>
+  window.addEventListener("message", function (e) {
+    if (e.origin !== "https://<owner>.github.io") return;
+    if (e.data && e.data.type === "outage-map:height") {
+      document.getElementById("outage-map").style.height = e.data.height + "px";
+    }
+  });
+</script>
 ```
 
-The scheduled refresh only runs from the default branch, so it starts
-once the workflow file lands on `main`.
+The `height:1500px` is just the initial value before the first message
+arrives. If your CMS strips `<script>`, the fixed height still works —
+you just lose the auto-fit.
+
+The widget renders on a white surface with a fixed light theme (it does
+not follow the viewer's dark-mode setting) so it blends into a light host
+page. The scheduled refresh only runs from the default branch, so it
+starts once the workflow file lands on `main`.
 
 ## Data
 
