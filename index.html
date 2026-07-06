@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>US Power Outage Map</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ctext y='13' font-size='13'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="viz-root">
+    <header class="page-header">
+      <h1>US Power Outage Map</h1>
+      <p class="subtitle">Customers without electric power, by state.
+        <span id="source-note"></span></p>
+    </header>
+
+    <section class="stat-row" aria-label="Summary">
+      <div class="stat-tile">
+        <div class="stat-label">Customers without power</div>
+        <div class="stat-value" id="stat-total">–</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">Share of tracked customers</div>
+        <div class="stat-value" id="stat-share">–</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">States affected</div>
+        <div class="stat-value" id="stat-states">–</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">Last updated</div>
+        <div class="stat-value stat-value-small" id="stat-updated">–</div>
+      </div>
+    </section>
+
+    <div class="filter-row" role="radiogroup" aria-label="Map metric">
+      <span class="filter-label">Color by</span>
+      <div class="segmented" id="metric-toggle">
+        <button type="button" role="radio" aria-checked="true" data-metric="out">Customers out</button>
+        <button type="button" role="radio" aria-checked="false" data-metric="pct">% of customers</button>
+      </div>
+    </div>
+
+    <section class="card" aria-label="Outage map">
+      <div id="map" class="map-container"></div>
+      <div class="legend" id="legend" aria-hidden="true"></div>
+      <div class="tooltip" id="tooltip" role="status" hidden></div>
+    </section>
+
+    <section class="card" aria-label="Outages by state">
+      <h2 class="card-title">Outages by state</h2>
+      <div class="table-wrap">
+        <table id="state-table">
+          <thead>
+            <tr>
+              <th scope="col"><button type="button" data-sort="name">State</button></th>
+              <th scope="col" class="num"><button type="button" data-sort="customers_out">Customers out</button></th>
+              <th scope="col" class="num"><button type="button" data-sort="pct">% out</button></th>
+              <th scope="col" class="num"><button type="button" data-sort="customers_tracked">Customers tracked</button></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="page-footer">
+      <p id="footer-note">Data refreshes automatically every 5 minutes from
+        <code>data/outages.json</code>. Regenerate it with
+        <code>scripts/fetch_outages.py</code>.</p>
+    </footer>
+  </div>
+
+  <script src="js/vendor/d3.v7.min.js"></script>
+  <script src="js/vendor/topojson-client.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
