@@ -47,7 +47,7 @@
   }
 
   function fillFor(record, metric) {
-    if (!record) return "var(--zero-fill)";
+    if (!record) return "var(--surface-1)"; // no data: recedes to the card surface
     var v = METRICS[metric].value(record);
     if (v <= 0) return "var(--zero-fill)";
     var t = METRICS[metric].thresholds;
@@ -95,6 +95,7 @@
     var metric = state.metric;
     state.paths
       .style("fill", function (d) { return fillFor(state.outages[d.id], metric); })
+      .classed("state--nodata", function (d) { return !state.outages[d.id]; })
       .attr("aria-label", function (d) {
         var rec = state.outages[d.id];
         if (!rec) return d.properties.name + ": no data";
@@ -120,6 +121,7 @@
       var sub = document.createElement("div");
       sub.className = "tooltip-sub";
       sub.textContent = formatPct(METRICS.pct.value(rec)) + " of " +
+        (rec.tracked_estimated ? "~" : "") +
         fmtCount(rec.customers_tracked) + " tracked customers";
       tooltip.appendChild(sub);
     }
@@ -157,15 +159,21 @@
   function renderLegend() {
     var legend = document.getElementById("legend");
     legend.replaceChildren();
-    var labels = METRICS[state.metric].legendLabels;
-    labels.forEach(function (label, i) {
+    var entries = METRICS[state.metric].legendLabels.map(function (label, i) {
+      return { label: label, fill: i === 0 ? "var(--zero-fill)" : "var(--seq-" + i + ")" };
+    });
+    var reported = Object.keys(state.outages || {}).length;
+    if (state.paths && reported < state.paths.size()) {
+      entries.unshift({ label: "No data", fill: "var(--surface-1)" });
+    }
+    entries.forEach(function (entry) {
       var item = document.createElement("span");
       item.className = "legend-item";
       var swatch = document.createElement("span");
       swatch.className = "legend-swatch";
-      swatch.style.background = i === 0 ? "var(--zero-fill)" : "var(--seq-" + i + ")";
+      swatch.style.background = entry.fill;
       var text = document.createElement("span");
-      text.textContent = label;
+      text.textContent = entry.label;
       item.appendChild(swatch);
       item.appendChild(text);
       legend.appendChild(item);
@@ -184,7 +192,7 @@
     document.getElementById("stat-share").textContent =
       totalTracked > 0 ? formatPct(totalOut / totalTracked) : "–";
     document.getElementById("stat-states").textContent =
-      affected + " of " + records.length;
+      affected + " of " + (state.paths ? state.paths.size() : records.length);
     document.getElementById("stat-updated").textContent = state.generatedAt
       ? new Date(state.generatedAt).toLocaleString(undefined,
           { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })
@@ -211,7 +219,8 @@
     tbody.replaceChildren();
     records.forEach(function (d) {
       var tr = document.createElement("tr");
-      [d.name, fmtCount(d.customers_out), formatPct(d.pct), fmtCount(d.customers_tracked)]
+      [d.name, fmtCount(d.customers_out), formatPct(d.pct),
+       (d.tracked_estimated ? "~" : "") + fmtCount(d.customers_tracked)]
         .forEach(function (text, i) {
           var td = document.createElement("td");
           if (i > 0) td.className = "num";
