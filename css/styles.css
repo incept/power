@@ -161,6 +161,24 @@ body {
   outline: none;
 }
 
+/* ---- county drill-down layer ---- */
+.county-backing {
+  fill: transparent;      /* hole-free hit area for the hovered state */
+  stroke: none;
+}
+.county {
+  stroke: var(--surface-1);
+  stroke-width: 0.3;
+  cursor: default;
+}
+.county--nodata { stroke: var(--hairline); }
+.county:hover {
+  stroke: var(--text-primary);
+  stroke-width: 1;
+}
+/* The exploded state reads as "lifted" — a crisp outline around the group. */
+.county-layer { pointer-events: all; }
+
 /* ---- legend ---- */
 .legend {
   display: flex;
@@ -171,6 +189,12 @@ body {
   color: var(--text-secondary);
 }
 .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.legend-note {
+  width: 100%;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 2px;
+}
 .legend-swatch {
   width: 14px;
   height: 14px;

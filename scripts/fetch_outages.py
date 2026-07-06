@@ -24,8 +24,21 @@ Schema written to data/outages.json:
         "customers_tracked": 14640000
       },
       ...
+    ],
+    "counties": [                    # optional; drives the hover drill-down
+      {
+        "fips": "48201",             # 5-digit county FIPS (state prefix = 48)
+        "name": "Harris",
+        "customers_out": 120000
+      },
+      ...
     ]
   }
+
+The map reveals a state's counties on hover. Counties carry no reliable
+served-customer denominator, so the county layer shows absolute counts only.
+A state's per-county figures need not sum to its state total: ODIN incidents
+that can't be resolved to a county still count toward the state.
 
 Real-data integrations (both map cleanly onto this schema):
   * PowerOutage.us API (paid)  https://poweroutage.us/products — county and
@@ -44,7 +57,9 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
-OUT_PATH = Path(__file__).resolve().parent.parent / "data" / "outages.json"
+DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+OUT_PATH = DATA_DIR / "outages.json"
+COUNTY_TOPO_PATH = DATA_DIR / "us-counties-albers-10m.json"
 
 # (fips, abbr, name, approx population in millions). Electric-customer counts
 # are estimated as pop * 0.48 (~163M US customers / ~338M people); a real feed
@@ -109,7 +124,19 @@ ODIN_FIELDS = {
     "utility": ["utility_id", "utilityid", "utility"],
     "location": ["county", "communitydescriptor", "incident_location",
                  "geo_point_2d"],
+    # For county allocation only. communitydescriptor holds a FIPS *or* a ZIP
+    # depending on location_kind, so it is used solely with the kind guard and
+    # a state-prefix cross-check below — never to resolve the state itself.
+    "descriptor": ["communitydescriptor", "community_descriptor",
+                   "county_fips", "fips", "geoid"],
+    "location_kind": ["incident_location_kind", "location_kind",
+                      "locationkind"],
+    "county_name": ["county", "countyname", "county_name"],
 }
+
+# location_kind substrings meaning the descriptor is NOT a county FIPS.
+ODIN_NONCOUNTY_KINDS = ("zip", "postal", "point", "lat", "lon", "coord",
+                        "address", "street")
 
 # statuskind values marking incidents that are over; anything else (Active,
 # Assigned, EnRoute, unknown, ...) counts as an ongoing outage.
@@ -125,9 +152,10 @@ SAMPLE_EVENT_RATES = {
 }
 
 
-def build_sample():
+def build_sample(county_ref=None):
     rng = random.Random(20260706)  # deterministic output
-    states = []
+    names, by_state, _ = county_ref or ({}, {}, {})
+    states, counties = [], []
     for fips, abbr, name, pop_m in STATES:
         tracked = int(pop_m * 1_000_000 * CUSTOMERS_PER_CAPITA)
         base_rate = rng.uniform(0.00002, 0.0008)  # everyday background outages
@@ -139,7 +167,23 @@ def build_sample():
             "fips": fips, "abbr": abbr, "name": name,
             "customers_out": out, "customers_tracked": tracked,
         })
-    return states
+        # Scatter the state's outage across a handful of its counties so the
+        # hover drill-down has something to show. Sums back to the state total.
+        state_counties = by_state.get(fips, [])
+        if out > 0 and state_counties:
+            k = min(len(state_counties), rng.randint(3, 12))
+            chosen = rng.sample(state_counties, k)
+            weights = [rng.random() for _ in chosen]
+            wsum = sum(weights) or 1.0
+            allocated = 0
+            for i, cf in enumerate(chosen):
+                share = out - allocated if i == len(chosen) - 1 \
+                    else int(out * weights[i] / wsum)
+                allocated += share
+                if share > 0:
+                    counties.append({"fips": cf, "name": names.get(cf, cf),
+                                     "customers_out": share})
+    return states, counties
 
 
 def _pick_field(record_lc, candidates):
@@ -156,7 +200,60 @@ def _to_int(value):
         return None
 
 
-def build_from_odin(base, dataset):
+def _norm_county(name):
+    """Normalize a county name for matching (drop the type suffix + punctuation)."""
+    s = str(name).lower().strip()
+    for suffix in (" county", " parish", " borough", " census area",
+                   " municipality", " city and borough", " municipio"):
+        if s.endswith(suffix):
+            s = s[: -len(suffix)]
+    return "".join(ch for ch in s if ch.isalnum())
+
+
+def load_county_reference(path=COUNTY_TOPO_PATH):
+    """Read the vendored county TopoJSON into lookups shared by both sources.
+
+    Returns (names, by_state, by_state_name):
+      names        {fips5: display name}
+      by_state     {state_fips2: [fips5, ...]}  (map render order)
+      by_state_name {(state_fips2, normalized name): fips5}
+    """
+    topo = json.loads(Path(path).read_text())
+    geometries = topo["objects"]["counties"]["geometries"]
+    names, by_state, by_state_name = {}, {}, {}
+    for g in geometries:
+        fips = str(g["id"]).zfill(5)
+        name = g.get("properties", {}).get("name", fips)
+        names[fips] = name
+        by_state.setdefault(fips[:2], []).append(fips)
+        by_state_name[(fips[:2], _norm_county(name))] = fips
+    return names, by_state, by_state_name
+
+
+def _resolve_county(rec_lc, state_fips, county_ref):
+    """Resolve an incident to a 5-digit county FIPS, or None if not county-coded.
+
+    communitydescriptor may carry a ZIP rather than a FIPS, so it is trusted
+    only when location_kind doesn't say otherwise, the value is a real county
+    code, and its 2-digit prefix matches the already-resolved state (which
+    kills ZIP-as-FIPS collisions). Falls back to a (state, county-name) join.
+    """
+    names, _, by_state_name = county_ref
+    kind = _pick_field(rec_lc, ODIN_FIELDS["location_kind"])
+    kind_s = str(kind).lower() if kind is not None else ""
+    if not any(k in kind_s for k in ODIN_NONCOUNTY_KINDS):
+        desc = _pick_field(rec_lc, ODIN_FIELDS["descriptor"])
+        if desc is not None:
+            digits = str(desc).split(".")[0].strip().zfill(5)
+            if len(digits) == 5 and digits in names and digits[:2] == state_fips:
+                return digits
+    cname = _pick_field(rec_lc, ODIN_FIELDS["county_name"])
+    if cname is not None:
+        return by_state_name.get((state_fips, _norm_county(cname)))
+    return None
+
+
+def build_from_odin(base, dataset, county_ref=None):
     url = f"{base.rstrip('/')}/api/explore/v2.1/catalog/datasets/{dataset}/exports/json"
     req = urllib.request.Request(url, headers={"Accept": "application/json"})
     with urllib.request.urlopen(req, timeout=60) as resp:
@@ -175,6 +272,9 @@ def build_from_odin(base, dataset):
     out_sum = {}
     served_sum = {}
     served_complete = {}
+    county_out = {}
+    allocated_to_county = 0
+    state_only = 0
     skipped = 0
     inactive = 0
     duplicates = 0
@@ -233,6 +333,14 @@ def build_from_odin(base, dataset):
             served_complete.setdefault(state_fips, True)
             served_sum[state_fips] = served_sum.get(state_fips, 0) + served
 
+        county_fips5 = _resolve_county(rec_lc, state_fips, county_ref) \
+            if county_ref else None
+        if county_fips5:
+            county_out[county_fips5] = county_out.get(county_fips5, 0) + out
+            allocated_to_county += 1
+        else:
+            state_only += 1
+
     print("odin: incident statuses: "
           + ", ".join(f"{k}={v}" for k, v in sorted(status_counts.items()))
           + f" (excluded {inactive} finished, {duplicates} duplicates)",
@@ -249,6 +357,11 @@ def build_from_odin(base, dataset):
         print(f"odin: skipped {skipped} of {len(records)} unmappable records",
               file=sys.stderr)
 
+    if county_ref:
+        print(f"odin: {allocated_to_county} incidents mapped to a county, "
+              f"{state_only} state-only (no county drill-down for those)",
+              file=sys.stderr)
+
     states = []
     for state_fips, out in sorted(out_sum.items()):
         abbr, name = by_fips[state_fips]
@@ -263,7 +376,12 @@ def build_from_odin(base, dataset):
             "customers_out": out, "customers_tracked": tracked,
             "tracked_estimated": tracked_estimated,
         })
-    return states
+
+    county_names = county_ref[0] if county_ref else {}
+    counties = [{"fips": cf, "name": county_names.get(cf, cf),
+                 "customers_out": out}
+                for cf, out in sorted(county_out.items())]
+    return states, counties
 
 
 def build_from_url(url):
@@ -275,7 +393,10 @@ def build_from_url(url):
             if key not in s:
                 raise ValueError(f"feed entry missing '{key}': {s}")
         s["fips"] = str(s["fips"]).zfill(2)
-    return states
+    counties = doc.get("counties", []) if isinstance(doc, dict) else []
+    for c in counties:
+        c["fips"] = str(c["fips"]).zfill(5)
+    return states, counties
 
 
 def main():
@@ -289,29 +410,40 @@ def main():
     parser.add_argument("--out", default=str(OUT_PATH), help=f"output path (default {OUT_PATH})")
     args = parser.parse_args()
 
+    try:
+        county_ref = load_county_reference()
+    except (OSError, KeyError, ValueError) as err:
+        print(f"note: county geometry unavailable ({err}); "
+              "writing state data only, no hover drill-down", file=sys.stderr)
+        county_ref = None
+
     if args.source == "url":
         if not args.url:
             parser.error("--source url requires --url")
-        states = build_from_url(args.url)
+        states, counties = build_from_url(args.url)
         source_label = args.url
     elif args.source == "odin":
-        states = build_from_odin(args.odin_base, args.odin_dataset)
+        states, counties = build_from_odin(args.odin_base, args.odin_dataset,
+                                           county_ref)
         source_label = "ODIN (DOE/ORNL), participating utilities only"
     else:
-        states = build_sample()
+        states, counties = build_sample(county_ref)
         source_label = "sample"
 
     doc = {
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "source": source_label,
         "states": sorted(states, key=lambda s: s["fips"]),
+        "counties": sorted(counties, key=lambda c: c["fips"]),
     }
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(doc, indent=1) + "\n")
 
     total_out = sum(s["customers_out"] for s in states)
-    print(f"wrote {out_path} — {len(states)} states, {total_out:,} customers out", file=sys.stderr)
+    print(f"wrote {out_path} — {len(states)} states, "
+          f"{len(counties)} counties, {total_out:,} customers out",
+          file=sys.stderr)
 
 
 if __name__ == "__main__":
