@@ -1,0 +1,57 @@
+name: Refresh data and deploy to GitHub Pages
+
+# Two jobs in one workflow because pushes made with GITHUB_TOKEN don't
+# trigger other workflows: a scheduled data refresh could never kick a
+# separate deploy workflow, so the deploy lives here too.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "*/20 * * * *"   # refresh outage data every 20 minutes
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # On scheduled/manual runs, pull fresh ODIN data. A fetch failure is
+      # non-fatal: the site redeploys with the last committed snapshot.
+      - name: Refresh outage data from ODIN
+        if: github.event_name != 'push'
+        run: |
+          python3 scripts/fetch_outages.py --source odin \
+            || echo "::warning::ODIN fetch failed; deploying last good data"
+
+      - name: Commit refreshed data
+        if: github.event_name != 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/outages.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Refresh outage data"
+            git push
+          fi
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: "."
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

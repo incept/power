@@ -39,6 +39,35 @@ python3 -m http.server 8000
 
 Any static host (GitHub Pages, Netlify, S3, nginx) works the same way.
 
+## Hosting & embedding
+
+The site deploys itself to GitHub Pages via
+`.github/workflows/deploy.yml`: every push to `main` redeploys, and a
+20-minute schedule refreshes `data/outages.json` from ODIN and redeploys.
+One-time setup: in the repo's **Settings → Pages**, set **Source: GitHub
+Actions**. The site then lives at:
+
+```
+https://<owner>.github.io/power/
+```
+
+(Note this is the `github.io` Pages domain — `github.com/<owner>/power`
+is the code repository and only shows source files.)
+
+To embed in WordPress (or any CMS), add a Custom HTML block:
+
+```html
+<iframe
+  src="https://<owner>.github.io/power/"
+  title="US Power Outage Map"
+  loading="lazy"
+  style="width:100%; height:1500px; border:0; overflow:hidden;">
+</iframe>
+```
+
+The scheduled refresh only runs from the default branch, so it starts
+once the workflow file lands on `main`.
+
 ## Data
 
 The map renders whatever is in `data/outages.json`:
