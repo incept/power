@@ -107,6 +107,8 @@ ODIN_FIELDS = {
                "incident_status"],
     "incident": ["incident", "incident_id", "incidentid"],
     "utility": ["utility_id", "utilityid", "utility"],
+    "location": ["county", "communitydescriptor", "incident_location",
+                 "geo_point_2d"],
 }
 
 # statuskind values marking incidents that are over; anything else (Active,
@@ -188,11 +190,14 @@ def build_from_odin(base, dataset):
             inactive += 1
             continue
 
-        # One row per incident is expected; guard against re-exported rows.
+        # A multi-county incident legitimately appears as one row per county
+        # sharing the same incident id, so the dedupe key must include the
+        # location — only a re-exported row for the same place is a duplicate.
         incident = _pick_field(rec_lc, ODIN_FIELDS["incident"])
         utility = _pick_field(rec_lc, ODIN_FIELDS["utility"])
         if incident is not None:
-            key = (str(utility), str(incident))
+            location = _pick_field(rec_lc, ODIN_FIELDS["location"])
+            key = (str(utility), str(incident), str(location))
             if key in seen_incidents:
                 duplicates += 1
                 continue
@@ -232,6 +237,10 @@ def build_from_odin(base, dataset):
           + ", ".join(f"{k}={v}" for k, v in sorted(status_counts.items()))
           + f" (excluded {inactive} finished, {duplicates} duplicates)",
           file=sys.stderr)
+    if duplicates > 0.2 * len(records):
+        print("odin: WARNING — dedupe dropped more than 20% of records; the "
+              "rows may be distinct outages that share a key. Inspect a few "
+              "records before trusting these totals.", file=sys.stderr)
     if not out_sum:
         raise RuntimeError(
             f"odin: no active records could be mapped (of {len(records)}); "
