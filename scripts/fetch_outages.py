@@ -86,23 +86,33 @@ CUSTOMERS_PER_CAPITA = 0.48
 ODIN_BASE = "https://ornl.opendatasoft.com"
 ODIN_DATASET = "odin-real-time-outages-county"
 
-# Portals rename columns occasionally, so map by candidate lists (matched
-# case-insensitively, in order). If nothing matches, the adapter prints the
-# record's actual field names so the right candidate can be added here.
+# The dataset is INCIDENT-level: one record per outage incident, with
+# `metersaffected` customers out, a `state`, a `statuskind`, and no
+# served-customers denominator. Portals rename columns occasionally, so map
+# by candidate lists (matched case-insensitively, in order). If nothing
+# matches, the adapter prints the record's actual field names so the right
+# candidate can be added here.
 ODIN_FIELDS = {
     "fips": ["county_fips", "fips", "fips_code", "fipscode", "geoid",
              "county_fips_code", "cnty_fips"],
-    "out": ["customers_out", "customersout", "cust_out", "customers_affected",
-            "customersaffected", "outage_count", "num_out", "sum_customers_out",
-            "customersoutnow", "out"],
+    "out": ["metersaffected", "meters_affected", "customers_out",
+            "customersout", "cust_out", "customers_affected",
+            "customersaffected", "outage_count", "num_out",
+            "sum_customers_out", "customersoutnow", "out"],
     "served": ["customers_served", "customersserved", "cust_served",
                "customers_tracked", "total_customers", "customer_count",
                "served"],
     "state": ["state", "state_abbr", "state_code", "st", "state_name"],
-    "updated": ["last_updated", "lastupdatedt", "updated_at", "utc_timestamp",
-                "timestamp", "datetime", "last_update", "observed_at",
-                "record_time"],
+    "status": ["statuskind", "status_kind", "status", "outagestatus",
+               "incident_status"],
+    "incident": ["incident", "incident_id", "incidentid"],
+    "utility": ["utility_id", "utilityid", "utility"],
 }
+
+# statuskind values marking incidents that are over; anything else (Active,
+# Assigned, EnRoute, unknown, ...) counts as an ongoing outage.
+ODIN_INACTIVE_MARKERS = ("restor", "clos", "complet", "resolv", "cancel",
+                         "inactive", "fals")  # "fals": boolean-style actives
 
 # Demo scenario: a Gulf Coast hurricane remnant plus a Midwest derecho.
 # Values are the fraction of tracked customers without power.
@@ -164,8 +174,30 @@ def build_from_odin(base, dataset):
     served_sum = {}
     served_complete = {}
     skipped = 0
+    inactive = 0
+    duplicates = 0
+    status_counts = {}
+    seen_incidents = set()
     for rec in records:
         rec_lc = {k.lower(): v for k, v in rec.items()}
+
+        status = _pick_field(rec_lc, ODIN_FIELDS["status"])
+        status_key = str(status).strip() if status is not None else "(none)"
+        status_counts[status_key] = status_counts.get(status_key, 0) + 1
+        if any(m in status_key.lower() for m in ODIN_INACTIVE_MARKERS):
+            inactive += 1
+            continue
+
+        # One row per incident is expected; guard against re-exported rows.
+        incident = _pick_field(rec_lc, ODIN_FIELDS["incident"])
+        utility = _pick_field(rec_lc, ODIN_FIELDS["utility"])
+        if incident is not None:
+            key = (str(utility), str(incident))
+            if key in seen_incidents:
+                duplicates += 1
+                continue
+            seen_incidents.add(key)
+
         state_fips = None
         county_fips = _pick_field(rec_lc, ODIN_FIELDS["fips"])
         if county_fips is not None:
@@ -196,9 +228,13 @@ def build_from_odin(base, dataset):
             served_complete.setdefault(state_fips, True)
             served_sum[state_fips] = served_sum.get(state_fips, 0) + served
 
+    print("odin: incident statuses: "
+          + ", ".join(f"{k}={v}" for k, v in sorted(status_counts.items()))
+          + f" (excluded {inactive} finished, {duplicates} duplicates)",
+          file=sys.stderr)
     if not out_sum:
         raise RuntimeError(
-            f"odin: no records could be mapped (of {len(records)}); "
+            f"odin: no active records could be mapped (of {len(records)}); "
             "see the field-name hint above and extend ODIN_FIELDS")
     if skipped:
         print(f"odin: skipped {skipped} of {len(records)} unmappable records",

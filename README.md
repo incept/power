@@ -68,18 +68,24 @@ python3 scripts/fetch_outages.py --source url --url https://example.com/outages.
 
 The [Outage Data Initiative Nationwide](https://odin.ornl.gov) is a
 DOE/ORNL program in which utilities report standardized outage data in
-near-real time. ORNL republishes it as a public county-level dataset on
-their [OpenEnergyHub portal](https://openenergyhub.ornl.gov/explore/dataset/odin-real-time-outages-county/),
+near-real time. ORNL republishes it as a public dataset on their
+[OpenEnergyHub portal](https://openenergyhub.ornl.gov/explore/dataset/odin-real-time-outages-county/),
 which the `odin` source reads via the portal's Opendatasoft exports API
-(no key required) and aggregates to state level.
+(no key required).
+
+The dataset is **incident-level** — one record per outage incident with a
+`metersaffected` count, a `state`, and a `statuskind`. The adapter drops
+incidents whose status marks them finished (restored / closed / resolved
+/ canceled), de-duplicates repeated incident ids, sums the rest by state,
+and prints the status distribution it saw so you can sanity-check a run.
 
 Two caveats, both visible in the UI:
 
 - **Coverage is participating utilities only.** States with no reporting
   utility are omitted from the output and render as **"No data"** (an
   unfilled outline) rather than zero.
-- When a utility doesn't report how many customers it serves, the state's
-  denominator falls back to a population-based estimate, flagged as
+- ODIN reports no served-customer denominators, so the percentage view
+  divides by a population-based estimate, flagged as
   `"tracked_estimated": true` and shown with a `~` prefix in the app.
 
 Portals occasionally rename columns; if the adapter can't map a record it
