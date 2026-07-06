@@ -3,7 +3,25 @@
 An interactive choropleth map of electric power outages across the United
 States: customers without power by state, summary stat tiles, a color-by
 toggle (absolute count vs. share of tracked customers), hover/keyboard
-tooltips, and a sortable table view. Light and dark mode are both supported.
+tooltips, and a sortable table view. **Hover (or keyboard-focus) a state to
+reveal its counties**, shaded by their own outage counts. Light and dark
+mode are both supported.
+
+## County drill-down
+
+The base map is state-level. When you hover or focus a state it "explodes"
+into its counties, each colored by its own `customers_out` (an absolute
+scale — ODIN reports no per-county denominator, so there is no county
+percentage view), with a per-county tooltip and a legend that swaps to the
+county scale while showing the statewide total. Moving off the state
+collapses it back. Counties with no reported outage show as unfilled
+outlines, same as states in the base view.
+
+County figures come from the `counties` array in `data/outages.json`; if
+that array is absent or the county geometry fails to load, the map still
+works — it just won't drill down. A state's per-county numbers need not sum
+to its state total: ODIN incidents that can't be resolved to a county still
+count toward the state (the legend note always shows the statewide total).
 
 The app is a fully static site — no build step, no runtime dependencies
 beyond a vendored copy of [D3](https://d3js.org) and
