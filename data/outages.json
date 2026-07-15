@@ -1,12 +1,12 @@
 {
- "generated_at": "2026-07-15T06:32:43Z",
+ "generated_at": "2026-07-15T08:59:43Z",
  "source": "ODIN (DOE/ORNL), participating utilities only",
  "states": [
   {
    "fips": "04",
    "abbr": "AZ",
    "name": "Arizona",
-   "customers_out": 63,
+   "customers_out": 142,
    "customers_tracked": 3638400,
    "tracked_estimated": true
   },
@@ -14,7 +14,7 @@
    "fips": "06",
    "abbr": "CA",
    "name": "California",
-   "customers_out": 4423,
+   "customers_out": 1726,
    "customers_tracked": 18734400,
    "tracked_estimated": true
   },
@@ -27,10 +27,26 @@
    "tracked_estimated": true
   },
   {
+   "fips": "12",
+   "abbr": "FL",
+   "name": "Florida",
+   "customers_out": 1125,
+   "customers_tracked": 11040000,
+   "tracked_estimated": true
+  },
+  {
+   "fips": "13",
+   "abbr": "GA",
+   "name": "Georgia",
+   "customers_out": 23,
+   "customers_tracked": 5342400,
+   "tracked_estimated": true
+  },
+  {
    "fips": "19",
    "abbr": "IA",
    "name": "Iowa",
-   "customers_out": 88,
+   "customers_out": 43,
    "customers_tracked": 1540800,
    "tracked_estimated": true
   },
@@ -38,7 +54,7 @@
    "fips": "20",
    "abbr": "KS",
    "name": "Kansas",
-   "customers_out": 10,
+   "customers_out": 7,
    "customers_tracked": 1411200,
    "tracked_estimated": true
   },
@@ -54,7 +70,7 @@
    "fips": "25",
    "abbr": "MA",
    "name": "Massachusetts",
-   "customers_out": 93,
+   "customers_out": 1260,
    "customers_tracked": 3374400,
    "tracked_estimated": true
   },
@@ -62,7 +78,7 @@
    "fips": "26",
    "abbr": "MI",
    "name": "Michigan",
-   "customers_out": 141,
+   "customers_out": 57,
    "customers_tracked": 4819200,
    "tracked_estimated": true
   },
@@ -70,15 +86,23 @@
    "fips": "27",
    "abbr": "MN",
    "name": "Minnesota",
-   "customers_out": 111,
+   "customers_out": 47,
    "customers_tracked": 2769600,
+   "tracked_estimated": true
+  },
+  {
+   "fips": "29",
+   "abbr": "MO",
+   "name": "Missouri",
+   "customers_out": 4,
+   "customers_tracked": 2976000,
    "tracked_estimated": true
   },
   {
    "fips": "34",
    "abbr": "NJ",
    "name": "New Jersey",
-   "customers_out": 97,
+   "customers_out": 438,
    "customers_tracked": 4459200,
    "tracked_estimated": true
   },
@@ -86,7 +110,7 @@
    "fips": "36",
    "abbr": "NY",
    "name": "New York",
-   "customers_out": 1487,
+   "customers_out": 400,
    "customers_tracked": 9446400,
    "tracked_estimated": true
   },
@@ -94,7 +118,7 @@
    "fips": "37",
    "abbr": "NC",
    "name": "North Carolina",
-   "customers_out": 56,
+   "customers_out": 43,
    "customers_tracked": 5203200,
    "tracked_estimated": true
   },
@@ -102,7 +126,7 @@
    "fips": "39",
    "abbr": "OH",
    "name": "Ohio",
-   "customers_out": 352,
+   "customers_out": 1067,
    "customers_tracked": 5659200,
    "tracked_estimated": true
   },
@@ -118,7 +142,7 @@
    "fips": "41",
    "abbr": "OR",
    "name": "Oregon",
-   "customers_out": 3338,
+   "customers_out": 2824,
    "customers_tracked": 2035200,
    "tracked_estimated": true
   },
@@ -126,7 +150,7 @@
    "fips": "42",
    "abbr": "PA",
    "name": "Pennsylvania",
-   "customers_out": 924,
+   "customers_out": 605,
    "customers_tracked": 6225600,
    "tracked_estimated": true
   },
@@ -134,7 +158,7 @@
    "fips": "46",
    "abbr": "SD",
    "name": "South Dakota",
-   "customers_out": 2,
+   "customers_out": 4,
    "customers_tracked": 441600,
    "tracked_estimated": true
   },
@@ -142,7 +166,7 @@
    "fips": "47",
    "abbr": "TN",
    "name": "Tennessee",
-   "customers_out": 6,
+   "customers_out": 3,
    "customers_tracked": 3422400,
    "tracked_estimated": true
   },
@@ -150,7 +174,7 @@
    "fips": "48",
    "abbr": "TX",
    "name": "Texas",
-   "customers_out": 111,
+   "customers_out": 146,
    "customers_tracked": 14640000,
    "tracked_estimated": true
   },
@@ -158,23 +182,15 @@
    "fips": "49",
    "abbr": "UT",
    "name": "Utah",
-   "customers_out": 47,
+   "customers_out": 27,
    "customers_tracked": 1641600,
-   "tracked_estimated": true
-  },
-  {
-   "fips": "50",
-   "abbr": "VT",
-   "name": "Vermont",
-   "customers_out": 1,
-   "customers_tracked": 312000,
    "tracked_estimated": true
   },
   {
    "fips": "53",
    "abbr": "WA",
    "name": "Washington",
-   "customers_out": 685,
+   "customers_out": 99,
    "customers_tracked": 3739200,
    "tracked_estimated": true
   },
@@ -182,7 +198,7 @@
    "fips": "54",
    "abbr": "WV",
    "name": "West Virginia",
-   "customers_out": 48,
+   "customers_out": 35,
    "customers_tracked": 849600,
    "tracked_estimated": true
   },
@@ -190,7 +206,7 @@
    "fips": "56",
    "abbr": "WY",
    "name": "Wyoming",
-   "customers_out": 151,
+   "customers_out": 19,
    "customers_tracked": 278400,
    "tracked_estimated": true
   }
@@ -199,32 +215,32 @@
   {
    "fips": "04013",
    "name": "Maricopa",
-   "customers_out": 42
+   "customers_out": 7
   },
   {
    "fips": "04025",
    "name": "Yavapai",
-   "customers_out": 21
+   "customers_out": 135
   },
   {
    "fips": "06037",
    "name": "Los Angeles",
-   "customers_out": 1869
+   "customers_out": 1045
   },
   {
    "fips": "06059",
    "name": "Orange",
-   "customers_out": 161
+   "customers_out": 143
   },
   {
    "fips": "06065",
    "name": "Riverside",
-   "customers_out": 90
+   "customers_out": 64
   },
   {
    "fips": "06071",
    "name": "San Bernardino",
-   "customers_out": 285
+   "customers_out": 248
   },
   {
    "fips": "06083",
@@ -244,7 +260,7 @@
   {
    "fips": "06111",
    "name": "Ventura",
-   "customers_out": 1982
+   "customers_out": 190
   },
   {
    "fips": "08107",
@@ -252,19 +268,19 @@
    "customers_out": 1
   },
   {
+   "fips": "12083",
+   "name": "Marion",
+   "customers_out": 1125
+  },
+  {
+   "fips": "13137",
+   "name": "Habersham",
+   "customers_out": 23
+  },
+  {
    "fips": "19017",
    "name": "Bremer",
    "customers_out": 1
-  },
-  {
-   "fips": "19103",
-   "name": "Johnson",
-   "customers_out": 32
-  },
-  {
-   "fips": "19153",
-   "name": "Polk",
-   "customers_out": 13
   },
   {
    "fips": "19189",
@@ -287,16 +303,6 @@
    "customers_out": 1
   },
   {
-   "fips": "20091",
-   "name": "Johnson",
-   "customers_out": 2
-  },
-  {
-   "fips": "20177",
-   "name": "Shawnee",
-   "customers_out": 1
-  },
-  {
    "fips": "21025",
    "name": "Breathitt",
    "customers_out": 1
@@ -312,19 +318,29 @@
    "customers_out": 11
   },
   {
+   "fips": "25003",
+   "name": "Berkshire",
+   "customers_out": 1
+  },
+  {
    "fips": "25009",
    "name": "Essex",
    "customers_out": 2
   },
   {
+   "fips": "25017",
+   "name": "Middlesex",
+   "customers_out": 821
+  },
+  {
    "fips": "25021",
    "name": "Norfolk",
-   "customers_out": 24
+   "customers_out": 408
   },
   {
    "fips": "25027",
    "name": "Worcester",
-   "customers_out": 67
+   "customers_out": 28
   },
   {
    "fips": "26001",
@@ -332,19 +348,9 @@
    "customers_out": 20
   },
   {
-   "fips": "26011",
-   "name": "Arenac",
-   "customers_out": 1
-  },
-  {
    "fips": "26049",
    "name": "Genesee",
-   "customers_out": 8
-  },
-  {
-   "fips": "26051",
-   "name": "Gladwin",
-   "customers_out": 3
+   "customers_out": 2
   },
   {
    "fips": "26055",
@@ -354,27 +360,32 @@
   {
    "fips": "26069",
    "name": "Iosco",
-   "customers_out": 14
+   "customers_out": 2
   },
   {
-   "fips": "26091",
-   "name": "Lenawee",
-   "customers_out": 93
+   "fips": "26081",
+   "name": "Kent",
+   "customers_out": 23
+  },
+  {
+   "fips": "26123",
+   "name": "Newaygo",
+   "customers_out": 1
   },
   {
    "fips": "26145",
    "name": "Saginaw",
-   "customers_out": 1
+   "customers_out": 8
   },
   {
    "fips": "27005",
    "name": "Becker",
-   "customers_out": 2
+   "customers_out": 1
   },
   {
    "fips": "27007",
    "name": "Beltrami",
-   "customers_out": 75
+   "customers_out": 1
   },
   {
    "fips": "27013",
@@ -387,14 +398,24 @@
    "customers_out": 3
   },
   {
+   "fips": "27049",
+   "name": "Goodhue",
+   "customers_out": 2
+  },
+  {
    "fips": "27107",
    "name": "Norman",
    "customers_out": 1
   },
   {
+   "fips": "27111",
+   "name": "Otter Tail",
+   "customers_out": 30
+  },
+  {
    "fips": "27115",
    "name": "Pine",
-   "customers_out": 2
+   "customers_out": 4
   },
   {
    "fips": "27119",
@@ -407,14 +428,9 @@
    "customers_out": 3
   },
   {
-   "fips": "27147",
-   "name": "Steele",
-   "customers_out": 1
-  },
-  {
-   "fips": "27153",
-   "name": "Todd",
-   "customers_out": 22
+   "fips": "29013",
+   "name": "Bates",
+   "customers_out": 4
   },
   {
    "fips": "34005",
@@ -424,7 +440,12 @@
   {
    "fips": "34019",
    "name": "Hunterdon",
-   "customers_out": 17
+   "customers_out": 41
+  },
+  {
+   "fips": "34021",
+   "name": "Mercer",
+   "customers_out": 1
   },
   {
    "fips": "34023",
@@ -434,26 +455,26 @@
   {
    "fips": "34025",
    "name": "Monmouth",
-   "customers_out": 7
+   "customers_out": 373
   },
   {
    "fips": "34027",
    "name": "Morris",
-   "customers_out": 3
+   "customers_out": 1
   },
   {
    "fips": "34029",
    "name": "Ocean",
-   "customers_out": 8
+   "customers_out": 2
   },
   {
    "fips": "34035",
    "name": "Somerset",
-   "customers_out": 47
+   "customers_out": 5
   },
   {
-   "fips": "34039",
-   "name": "Union",
+   "fips": "34037",
+   "name": "Sussex",
    "customers_out": 1
   },
   {
@@ -462,24 +483,14 @@
    "customers_out": 2
   },
   {
-   "fips": "36001",
-   "name": "Albany",
-   "customers_out": 2
+   "fips": "36031",
+   "name": "Essex",
+   "customers_out": 1
   },
   {
-   "fips": "36013",
-   "name": "Chautauqua",
-   "customers_out": 17
-  },
-  {
-   "fips": "36027",
-   "name": "Dutchess",
-   "customers_out": 8
-  },
-  {
-   "fips": "36029",
-   "name": "Erie",
-   "customers_out": 18
+   "fips": "36033",
+   "name": "Franklin",
+   "customers_out": 1
   },
   {
    "fips": "36039",
@@ -489,17 +500,12 @@
   {
    "fips": "36055",
    "name": "Monroe",
-   "customers_out": 2
-  },
-  {
-   "fips": "36057",
-   "name": "Montgomery",
    "customers_out": 1
   },
   {
    "fips": "36065",
    "name": "Oneida",
-   "customers_out": 18
+   "customers_out": 17
   },
   {
    "fips": "36067",
@@ -507,24 +513,29 @@
    "customers_out": 1
   },
   {
-   "fips": "36069",
-   "name": "Ontario",
-   "customers_out": 1
-  },
-  {
    "fips": "36071",
    "name": "Orange",
-   "customers_out": 2
+   "customers_out": 19
   },
   {
    "fips": "36089",
    "name": "St. Lawrence",
-   "customers_out": 1161
+   "customers_out": 206
+  },
+  {
+   "fips": "36091",
+   "name": "Saratoga",
+   "customers_out": 1
+  },
+  {
+   "fips": "36101",
+   "name": "Steuben",
+   "customers_out": 3
   },
   {
    "fips": "36111",
    "name": "Ulster",
-   "customers_out": 106
+   "customers_out": 4
   },
   {
    "fips": "36113",
@@ -534,7 +545,12 @@
   {
    "fips": "36117",
    "name": "Wayne",
-   "customers_out": 5
+   "customers_out": 1
+  },
+  {
+   "fips": "37009",
+   "name": "Ashe",
+   "customers_out": 11
   },
   {
    "fips": "37015",
@@ -542,19 +558,9 @@
    "customers_out": 1
   },
   {
-   "fips": "37019",
-   "name": "Brunswick",
-   "customers_out": 1
-  },
-  {
-   "fips": "37027",
-   "name": "Caldwell",
-   "customers_out": 1
-  },
-  {
-   "fips": "37051",
-   "name": "Cumberland",
-   "customers_out": 29
+   "fips": "37031",
+   "name": "Carteret",
+   "customers_out": 25
   },
   {
    "fips": "37063",
@@ -572,24 +578,19 @@
    "customers_out": 1
   },
   {
-   "fips": "37101",
-   "name": "Johnston",
-   "customers_out": 3
-  },
-  {
    "fips": "37123",
    "name": "Montgomery",
    "customers_out": 2
   },
   {
-   "fips": "37153",
-   "name": "Richmond",
-   "customers_out": 15
+   "fips": "39029",
+   "name": "Columbiana",
+   "customers_out": 1
   },
   {
    "fips": "39035",
    "name": "Cuyahoga",
-   "customers_out": 94
+   "customers_out": 81
   },
   {
    "fips": "39055",
@@ -599,7 +600,7 @@
   {
    "fips": "39085",
    "name": "Lake",
-   "customers_out": 34
+   "customers_out": 20
   },
   {
    "fips": "39093",
@@ -607,49 +608,24 @@
    "customers_out": 1
   },
   {
-   "fips": "39095",
-   "name": "Lucas",
-   "customers_out": 71
-  },
-  {
    "fips": "39099",
    "name": "Mahoning",
-   "customers_out": 1
+   "customers_out": 637
   },
   {
    "fips": "39103",
    "name": "Medina",
-   "customers_out": 3
-  },
-  {
-   "fips": "39123",
-   "name": "Ottawa",
-   "customers_out": 13
+   "customers_out": 2
   },
   {
    "fips": "39133",
    "name": "Portage",
-   "customers_out": 1
+   "customers_out": 323
   },
   {
    "fips": "39139",
    "name": "Richland",
    "customers_out": 1
-  },
-  {
-   "fips": "39151",
-   "name": "Stark",
-   "customers_out": 56
-  },
-  {
-   "fips": "39153",
-   "name": "Summit",
-   "customers_out": 66
-  },
-  {
-   "fips": "39175",
-   "name": "Wyandot",
-   "customers_out": 10
   },
   {
    "fips": "40137",
@@ -669,7 +645,7 @@
   {
    "fips": "41017",
    "name": "Deschutes",
-   "customers_out": 2647
+   "customers_out": 2652
   },
   {
    "fips": "41029",
@@ -679,32 +655,17 @@
   {
    "fips": "41031",
    "name": "Jefferson",
-   "customers_out": 45
+   "customers_out": 62
   },
   {
    "fips": "41033",
    "name": "Josephine",
-   "customers_out": 10
-  },
-  {
-   "fips": "41035",
-   "name": "Klamath",
-   "customers_out": 559
-  },
-  {
-   "fips": "41051",
-   "name": "Multnomah",
-   "customers_out": 8
-  },
-  {
-   "fips": "41053",
-   "name": "Polk",
-   "customers_out": 1
+   "customers_out": 11
   },
   {
    "fips": "41067",
    "name": "Washington",
-   "customers_out": 1
+   "customers_out": 32
   },
   {
    "fips": "41071",
@@ -719,27 +680,27 @@
   {
    "fips": "42003",
    "name": "Allegheny",
-   "customers_out": 206
-  },
-  {
-   "fips": "42005",
-   "name": "Armstrong",
-   "customers_out": 1
+   "customers_out": 5
   },
   {
    "fips": "42011",
    "name": "Berks",
-   "customers_out": 47
+   "customers_out": 46
   },
   {
    "fips": "42019",
    "name": "Butler",
-   "customers_out": 84
+   "customers_out": 24
+  },
+  {
+   "fips": "42033",
+   "name": "Clearfield",
+   "customers_out": 1
   },
   {
    "fips": "42055",
    "name": "Franklin",
-   "customers_out": 91
+   "customers_out": 114
   },
   {
    "fips": "42059",
@@ -757,6 +718,26 @@
    "customers_out": 1
   },
   {
+   "fips": "42103",
+   "name": "Pike",
+   "customers_out": 2
+  },
+  {
+   "fips": "42115",
+   "name": "Susquehanna",
+   "customers_out": 205
+  },
+  {
+   "fips": "42123",
+   "name": "Warren",
+   "customers_out": 1
+  },
+  {
+   "fips": "42125",
+   "name": "Washington",
+   "customers_out": 47
+  },
+  {
    "fips": "42129",
    "name": "Westmoreland",
    "customers_out": 4
@@ -764,12 +745,7 @@
   {
    "fips": "42131",
    "name": "Wyoming",
-   "customers_out": 467
-  },
-  {
-   "fips": "42133",
-   "name": "York",
-   "customers_out": 1
+   "customers_out": 133
   },
   {
    "fips": "46011",
@@ -782,13 +758,13 @@
    "customers_out": 1
   },
   {
-   "fips": "47019",
-   "name": "Carter",
-   "customers_out": 1
+   "fips": "46101",
+   "name": "Moody",
+   "customers_out": 2
   },
   {
-   "fips": "47021",
-   "name": "Cheatham",
+   "fips": "47019",
+   "name": "Carter",
    "customers_out": 1
   },
   {
@@ -802,39 +778,19 @@
    "customers_out": 1
   },
   {
-   "fips": "47125",
-   "name": "Montgomery",
-   "customers_out": 1
-  },
-  {
-   "fips": "47161",
-   "name": "Stewart",
-   "customers_out": 1
-  },
-  {
-   "fips": "48015",
-   "name": "Austin",
-   "customers_out": 1
-  },
-  {
-   "fips": "48039",
-   "name": "Brazoria",
-   "customers_out": 1
-  },
-  {
    "fips": "48157",
    "name": "Fort Bend",
-   "customers_out": 51
+   "customers_out": 46
   },
   {
    "fips": "48201",
    "name": "Harris",
-   "customers_out": 27
+   "customers_out": 1
   },
   {
    "fips": "48339",
    "name": "Montgomery",
-   "customers_out": 31
+   "customers_out": 99
   },
   {
    "fips": "49011",
@@ -844,7 +800,7 @@
   {
    "fips": "49021",
    "name": "Iron",
-   "customers_out": 2
+   "customers_out": 1
   },
   {
    "fips": "49035",
@@ -854,17 +810,7 @@
   {
    "fips": "49057",
    "name": "Weber",
-   "customers_out": 22
-  },
-  {
-   "fips": "50019",
-   "name": "Orleans",
-   "customers_out": 1
-  },
-  {
-   "fips": "53001",
-   "name": "Adams",
-   "customers_out": 38
+   "customers_out": 3
   },
   {
    "fips": "53029",
@@ -874,7 +820,7 @@
   {
    "fips": "53033",
    "name": "King",
-   "customers_out": 13
+   "customers_out": 5
   },
   {
    "fips": "53051",
@@ -884,32 +830,32 @@
   {
    "fips": "53053",
    "name": "Pierce",
-   "customers_out": 3
+   "customers_out": 8
+  },
+  {
+   "fips": "53057",
+   "name": "Skagit",
+   "customers_out": 1
   },
   {
    "fips": "53061",
    "name": "Snohomish",
-   "customers_out": 17
+   "customers_out": 18
   },
   {
    "fips": "53063",
    "name": "Spokane",
-   "customers_out": 4
-  },
-  {
-   "fips": "53067",
-   "name": "Thurston",
-   "customers_out": 597
+   "customers_out": 11
   },
   {
    "fips": "53073",
    "name": "Whatcom",
-   "customers_out": 5
+   "customers_out": 8
   },
   {
    "fips": "53077",
    "name": "Yakima",
-   "customers_out": 1
+   "customers_out": 41
   },
   {
    "fips": "54009",
@@ -919,32 +865,12 @@
   {
    "fips": "54029",
    "name": "Hancock",
-   "customers_out": 1
-  },
-  {
-   "fips": "54033",
-   "name": "Harrison",
-   "customers_out": 12
-  },
-  {
-   "fips": "54049",
-   "name": "Marion",
-   "customers_out": 1
-  },
-  {
-   "fips": "54061",
-   "name": "Monongalia",
-   "customers_out": 1
+   "customers_out": 2
   },
   {
    "fips": "54077",
    "name": "Preston",
-   "customers_out": 29
-  },
-  {
-   "fips": "54091",
-   "name": "Taylor",
-   "customers_out": 1
+   "customers_out": 30
   },
   {
    "fips": "56005",
@@ -954,12 +880,7 @@
   {
    "fips": "56041",
    "name": "Uinta",
-   "customers_out": 2
-  },
-  {
-   "fips": "56043",
-   "name": "Washakie",
-   "customers_out": 148
+   "customers_out": 18
   }
  ]
 }
