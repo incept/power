@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-09T00:04:04Z",
+ "generated_at": "2026-11-09T06:52:46Z",
  "source": "ODIN (DOE/ORNL), participating utilities only",
  "states": [
   {
@@ -14,7 +14,7 @@
    "fips": "06",
    "abbr": "CA",
    "name": "California",
-   "customers_out": 231,
+   "customers_out": 232,
    "customers_tracked": 18734400,
    "tracked_estimated": true
   },
@@ -214,7 +214,7 @@
    "fips": "48",
    "abbr": "TX",
    "name": "Texas",
-   "customers_out": 52,
+   "customers_out": 115,
    "customers_tracked": 14640000,
    "tracked_estimated": true
   },
@@ -300,7 +300,7 @@
   {
    "fips": "06065",
    "name": "Riverside",
-   "customers_out": 1
+   "customers_out": 2
   },
   {
    "fips": "06071",
@@ -915,7 +915,7 @@
   {
    "fips": "48201",
    "name": "Harris",
-   "customers_out": 24
+   "customers_out": 87
   },
   {
    "fips": "49035",
